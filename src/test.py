@@ -31,4 +31,7 @@ for line in lines:
     for x1,y1,x2,y2 in line:
         cv2.line(blank_image,(x1,y1),(x2,y2),(0,255,0),2)
 
-cv2.imwrite('lines.jpg',blank_image)
+cv2.imwrite('lines2.jpg',blank_image)
+
+(thresh, im_bw) = cv2.threshold(gray, 10, 255, cv2.THRESH_BINARY)
+
