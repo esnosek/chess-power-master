@@ -29,11 +29,13 @@ def is_rectangle(contour):
     return cv2.contourArea(contour) / cv2.contourArea(rotaded_rect) > .95
     
 def show_me_rectangles(cntrs):
-    for i in range(1,len(cntrs)+1):
-        blank = np.zeros(im2.shape, np.uint8)
-        cv2.drawContours(blank, cntrs, i, (255), 1)
-        cv2.imshow('c'.format(i), blank)
-        cv2.waitKey()
+    blank = np.zeros(im2.shape, np.uint8)
+    #for i in range(1,len(cntrs)+1):
+    #    cv2.drawContours(blank, cntrs, i, (255), 1)
+    #    cv2.imshow('c'.format(i), blank)
+    cv2.drawContours(blank, cntrs, -1, (255), 1)
+    cv2.imshow('rectangles', blank)
+    cv2.waitKey()
 
 """
 operation stream for rectange identification
@@ -60,17 +62,11 @@ im2, contours, hierarchy = cv2.findContours(gausiian, cv2.RETR_TREE,
 
 cv2.imshow('im2.jpg', im2)
 
-#for i in range(1, len(contours)+1):
-blank = np.zeros(im2.shape, np.uint8)
-cv2.drawContours(blank, [box], -1, (255), 1)
-cv2.imshow('c'.format(i), blank)
-
 cont_stats = [(c, is_rectangle(c)) for c in contours]
 cont_stats.sort(key = lambda x: x[1], reverse = True)
 cntrs = [c[0] for c in cont_stats]
 
-for i in range(1,len(cntrs)+1):
-    blank = np.zeros(im2.shape, np.uint8)
-    cv2.drawContours(blank, cntrs, i, (255), 1)
-    cv2.imshow('c'.format(i), blank)
-    cv2.waitKey()
+
+
+
+
