@@ -8,22 +8,14 @@ Created on Fri Feb 23 20:06:39 2018
 import cv2
 import numpy as np
 
-def adaptive_thresh(img_gray, block_size, c):
-    
-    return cv2.adaptiveThreshold(img_gray, 255,
+def adaptive_thresh(img, block_size, c):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    return cv2.adaptiveThreshold(gray, 255,
                                  cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                  cv2.THRESH_BINARY, block_size, c)
     
     
 if __name__ == '__main__':
-    path = 'imgs/szaszki.jpg'
-    gray = cv2.imread(path, 0)
-    gray = cv2.resize(gray, (0,0), fx=.4, fy=.4)
-    th_a = adaptive_thresh(gray, 351, 2)
-    
-    im2, contours, hierarchy = cv2.findContours(th_a,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    width, higth = th_a.shape
-    blank_image = np.zeros((width, higth), np.uint8)
-    cv2.drawContours(blank_image, contours, 3, (0,255,0), 7)
-    
-    cv2.imshow('2', th_a)
+    img_path = 'imgs/szaszki.jpg'
+    img = cv2.resize(cv2.imread(img_path), None, fx = 0.4, fy = 0.4)
+    th_a = adaptive_thresh(img, 351, 2)
