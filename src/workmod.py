@@ -47,12 +47,12 @@ def cut_contours(img, contours):
     mask = np.zeros(img.shape[0:2], np.uint8)
     cv2.drawContours(mask, contours, -1, (255), -1)
     
-    tresh = tr.adaptive_thresh(img, 351, 2)
-    out = np.zeros_like(img) # Extract out the object and place into output image
-    tresh[mask == 255] = img[mask == 255]
+    thresh = tr.adaptive_thresh(img, 351, 2)
+    color_thresh = cv2.cvtColor(thresh,cv2.COLOR_GRAY2BGR)
+    color_thresh[mask == 255] = img[mask == 255]
 
     # Show the output image
-    cv2.imshow('contours.jpg', out)
+    cv2.imwrite('contours.jpg', color_thresh)
     cv2.waitKey()
     
     
