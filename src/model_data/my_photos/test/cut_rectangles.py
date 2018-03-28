@@ -1,11 +1,10 @@
 import cv2
-import matplotlib.pyplot as plt
-import numpy as np
 import json
 import os
+from os.path import basename
 
 # constants
-image_folder = '.'
+json_folder = '.'
 
 def get_rectangle(height, width, channels, box1, image):
     return image[box1["upper_left"][1] : box1["down_right"][1], box1["upper_left"][0] : box1["down_right"][0], :]
@@ -13,15 +12,14 @@ def get_rectangle(height, width, channels, box1, image):
 
 if __name__ == '__main__':
     
-    for n, image_file in enumerate(os.scandir(image_folder)):
-        path = image_file.path
+    for n, file in enumerate(os.scandir(json_folder)):
+        path = file.path
         filename, file_extension = os.path.splitext(path)
-        print(filename)
-        if file_extension == ".png":
-            json_file_name = filename + ".json"
-            print(json_file_name)
-            json_data = json.load(open(json_file_name))
-            image = cv2.imread(image_file.path)
+        if file_extension == ".json":
+            img_file_name = filename + ".png"
+            print(basename(filename))
+            json_data = json.load(open(path))
+            image = cv2.imread(img_file_name)
             #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
             height = json_data["height"]
@@ -32,7 +30,7 @@ if __name__ == '__main__':
             for box in json_data["object"]:
                 i=i+1
                 rectangle = get_rectangle(height, width, channels, box, image)
-                rectangle_file_name = filename + "_" + str(i) + ".png"
+                rectangle_file_name = "fields/" + basename(filename) + "_" + str(i) + ".png"
                 rectangle = cv2.resize(rectangle, (200,200))
                 cv2.imwrite(rectangle_file_name, rectangle)
                 with open("labels.txt", 'a') as file:
