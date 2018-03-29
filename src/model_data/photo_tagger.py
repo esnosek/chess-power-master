@@ -116,8 +116,11 @@ def on_key(event):
     if event.key == 'q':
         write_json(img, boxes)
         piece_patch = empty_patch
+        piece = "EMPTY"
         field_colour_patch = field_white_patch
+        field_colour = "WHITE"
         piece_colour_patch = piece_white_patch
+        piece_colour = "WHITE"
         boxes = []
         img = None
         plt.close()

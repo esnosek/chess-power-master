@@ -11,7 +11,6 @@ def get_rectangle(height, width, channels, box1, image):
 
 
 if __name__ == '__main__':
-    
     for n, file in enumerate(os.scandir(json_folder)):
         path = file.path
         filename, file_extension = os.path.splitext(path)
@@ -33,7 +32,7 @@ if __name__ == '__main__':
                 rectangle_file_name = "fields/" + basename(filename) + "_" + str(i) + ".png"
                 rectangle = cv2.resize(rectangle, (200,200))
                 cv2.imwrite(rectangle_file_name, rectangle)
-                with open("labels.txt", 'a') as file:
+                with open("labels.csv", 'a') as file:
                     file.write(rectangle_file_name + "\t")
                     file.write(box["piece"] + "\t")
                     file.write(box["piece_colour"]+ "\t")
