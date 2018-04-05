@@ -25,8 +25,8 @@ labels = tf.placeholder(tf.int32, shape=([None, class_number]))
 # Set model weights
 L1 = 4000
 L2 = 2000
-L3 = 500
-
+L3 = 1000
+L4 = 500
 
 W1 = tf.Variable(tf.truncated_normal([features, L1], stddev=0.1))
 b1 = tf.Variable(tf.zeros([L1]))
@@ -37,8 +37,11 @@ b2 = tf.Variable(tf.zeros([L2]))
 W3 = tf.Variable(tf.truncated_normal([L2, L3], stddev=0.1))
 b3 = tf.Variable(tf.zeros([L3]))
 
-W4 = tf.Variable(tf.truncated_normal([L3, class_number], stddev=0.1))
-b4 = tf.Variable(tf.zeros([class_number]))
+W4 = tf.Variable(tf.truncated_normal([L3, L4], stddev=0.1))
+b4 = tf.Variable(tf.zeros([L4]))
+
+W5 = tf.Variable(tf.truncated_normal([L4, class_number], stddev=0.1))
+b5 = tf.Variable(tf.zeros([class_number]))
 
 # A simple fully connected with two class and a softmax is equivalent to Logistic Regression.
 #logits = tf.contrib.layers.fully_connected(inputs=images, num_outputs=class_number)
@@ -47,7 +50,8 @@ b4 = tf.Variable(tf.zeros([class_number]))
 Y1 = tf.nn.sigmoid(tf.matmul(images, W1) + b1)
 Y2 = tf.nn.sigmoid(tf.matmul(Y1, W2) + b2)
 Y3 = tf.nn.sigmoid(tf.matmul(Y2, W3) + b3)
-Ylogits = tf.matmul(Y3, W4) + b4
+Y4 = tf.nn.sigmoid(tf.matmul(Y3, W4) + b4)
+Ylogits = tf.matmul(Y4, W5) + b5
 
 #logits = tf.matmul(images, W) + b
 
@@ -57,7 +61,7 @@ loss = tf.reduce_mean(entropy)
 #loss = tf.reduce_mean(loss + 0.001 * regularizer)
 
 # Gradient Descent Optimizer
-optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
+optimizer = tf.train.GradientDescentOptimizer(0.005).minimize(loss)
 
 # Evaluate the model
 preds = tf.nn.softmax(Ylogits)
