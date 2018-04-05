@@ -5,6 +5,7 @@ class_number = 2
 width = 200
 height = 200
 channels = 3
+features = width * height * channels
 batch_size = 100
 epochs = 1000
 display_step = 1
@@ -12,34 +13,54 @@ display_step = 1
 tf.reset_default_graph()
 
 # Getting data
-train_images, train_labels, test_images, test_labels = get_binary_labeled_data(0.7, one_hot=True)
+train_images, train_labels, test_images, test_labels = get_binary_labeled_data(0.8, one_hot=True)
 
 train_size = train_images.shape[0]
 batch_size = train_size if train_size < batch_size else batch_size 
 
 # tf Graph Input
-images = tf.placeholder(tf.float32, [None, width * height * channels])
+images = tf.placeholder(tf.float32, [None, features])
 labels = tf.placeholder(tf.int32, shape=([None, class_number]))
 
 # Set model weights
-W = tf.Variable(tf.random_normal([width * height * channels, class_number], stddev=0.1))
-b = tf.Variable(tf.zeros([class_number]))
+L1 = 4000
+L2 = 2000
+L3 = 500
+
+
+W1 = tf.Variable(tf.truncated_normal([features, L1], stddev=0.1))
+b1 = tf.Variable(tf.zeros([L1]))
+ 
+W2 = tf.Variable(tf.truncated_normal([L1, L2], stddev=0.1))
+b2 = tf.Variable(tf.zeros([L2]))
+
+W3 = tf.Variable(tf.truncated_normal([L2, L3], stddev=0.1))
+b3 = tf.Variable(tf.zeros([L3]))
+
+W4 = tf.Variable(tf.truncated_normal([L3, class_number], stddev=0.1))
+b4 = tf.Variable(tf.zeros([class_number]))
 
 # A simple fully connected with two class and a softmax is equivalent to Logistic Regression.
 #logits = tf.contrib.layers.fully_connected(inputs=images, num_outputs=class_number)
 
 # Construct model
-logits = tf.matmul(images, W) + b
-entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
+Y1 = tf.nn.sigmoid(tf.matmul(images, W1) + b1)
+Y2 = tf.nn.sigmoid(tf.matmul(Y1, W2) + b2)
+Y3 = tf.nn.sigmoid(tf.matmul(Y2, W3) + b3)
+Ylogits = tf.matmul(Y3, W4) + b4
+
+#logits = tf.matmul(images, W) + b
+
+entropy = tf.nn.softmax_cross_entropy_with_logits(logits=Ylogits, labels=labels)
 loss = tf.reduce_mean(entropy)
-regularizer = tf.nn.l2_loss(W)
-loss = tf.reduce_mean(loss + 0.001 * regularizer)
+#regularizer = tf.nn.l2_loss(W)
+#loss = tf.reduce_mean(loss + 0.001 * regularizer)
 
 # Gradient Descent Optimizer
 optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(loss)
 
 # Evaluate the model
-preds = tf.nn.softmax(logits)
+preds = tf.nn.softmax(Ylogits)
 prediction_correct = tf.equal(tf.argmax(preds, 1), tf.argmax(labels, 1))
 
 # Accuracy calculation
