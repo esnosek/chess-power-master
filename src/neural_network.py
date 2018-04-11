@@ -1,5 +1,6 @@
 import tensorflow as tf
 from data_parser import get_binary_labeled_data
+from model_evaluation import get_accuracy, evaluate_model
 
 class_number = 2
 width = 200
@@ -55,7 +56,7 @@ Ylogits = tf.matmul(Y4, W5) + b5
 
 #logits = tf.matmul(images, W) + b
 
-entropy = tf.nn.softmax_cross_entropy_with_logits(logits=Ylogits, labels=labels)
+entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=Ylogits, labels=labels)
 loss = tf.reduce_mean(entropy)
 #regularizer = tf.nn.l2_loss(W)
 #loss = tf.reduce_mean(loss + 0.001 * regularizer)
@@ -65,10 +66,6 @@ optimizer = tf.train.GradientDescentOptimizer(0.005).minimize(loss)
 
 # Evaluate the model
 preds = tf.nn.softmax(Ylogits)
-prediction_correct = tf.equal(tf.argmax(preds, 1), tf.argmax(labels, 1))
-
-# Accuracy calculation
-accuracy = tf.reduce_mean(tf.cast(prediction_correct, tf.float32))
   
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
@@ -93,18 +90,17 @@ with tf.Session() as sess:
             batch_images = train_images[start:end, :]
             batch_labels = train_labels[start:end, :]
             
-            _, train_loss, train_accuracy = sess.run([optimizer, loss, accuracy], feed_dict={images: batch_images, labels: batch_labels})
-            
+            _, train_loss = sess.run([optimizer, loss], feed_dict={images: batch_images, labels: batch_labels})
+            train_accuracy = get_accuracy(sess, labels, preds, feed_dict={images: batch_images, labels: batch_labels})
+             
             avg_train_loss += train_loss/total_batch
             avg_train_accuracy += train_accuracy/total_batch
             
         if (epoch + 1) % display_step == 0:
-            test_accuracy = sess.run(accuracy, feed_dict={images: test_images, labels: test_labels})
+            test_accuracy = get_accuracy(sess, labels, preds, feed_dict={images: test_images, labels: test_labels})
             print("Epoch " + str(epoch + 1))
             print("   Training loss: {:.2f}".format(avg_train_loss))
             print("   Training accuracy: {:.2f} %".format(100 * avg_train_accuracy))
             print("   Test accuracy: {:.2f} %".format(100 * test_accuracy))
 
-    # Evaluation of the model
-    test_accuracy = sess.run(accuracy, feed_dict={images: test_images, labels: test_labels})
-    print("Final test accuracy: {:.2f} %".format(100 * test_accuracy))
+    evaluate_model(sess, labels, preds, feed_dict={images: test_images, labels: test_labels})

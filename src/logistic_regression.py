@@ -1,13 +1,14 @@
 import tensorflow as tf
 from data_parser import get_binary_labeled_data
+from model_evaluation import get_accuracy, evaluate_model
 
 class_number = 2
 width = 200
 height = 200
 channels = 3
 batch_size = 500
-epochs = 2000
-display_step = 100
+epochs = 50
+display_step = 10
 
 tf.reset_default_graph()
 
@@ -41,21 +42,6 @@ optimizer = tf.train.GradientDescentOptimizer(0.0001).minimize(loss)
 # Evaluate the model
 preds = tf.nn.softmax(logits)
 
-prediction_correct = tf.equal(tf.argmax(preds, 1), tf.argmax(labels, 1))
-accuracy2 = tf.reduce_mean(tf.cast(prediction_correct, tf.float32))
-
-# Initialize the variables (i.e. assign their default value)
-# init = tf.global_variables_initializer()
-
-accuracy, accuracy_op = tf.metrics.accuracy(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-recall, recall_op = tf.metrics.recall(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-precision, precision_op = tf.metrics.precision(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-
-false_positives, false_positives_op = tf.metrics.false_positives(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-false_negatives, false_negatives_op = tf.metrics.false_negatives(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-true_positives, true_positives_op = tf.metrics.true_positives(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-true_negatives, true_negatives_op = tf.metrics.true_negatives(labels=tf.argmax(labels, 1), predictions=tf.argmax(preds, 1))
-
 # Start training
 with tf.Session() as sess:
 
@@ -77,43 +63,17 @@ with tf.Session() as sess:
             batch_labels = train_labels[start:end, :]
             
             _, train_loss = sess.run([optimizer, loss], feed_dict={images: batch_images, labels: batch_labels})
-            tf.local_variables_initializer().run()
-            _, train_accuracy = sess.run([accuracy, accuracy_op], feed_dict={images: batch_images, labels: batch_labels})
+            train_accuracy = get_accuracy(sess, labels, preds, feed_dict={images: batch_images, labels: batch_labels})
             
             avg_train_loss += train_loss/total_batch
             avg_train_accuracy += train_accuracy/total_batch
             
         if (epoch + 1) % display_step == 0:
-            tf.local_variables_initializer().run()
-            _, test_accuracy = sess.run([accuracy, accuracy_op], feed_dict={images: test_images, labels: test_labels})
+            test_accuracy = get_accuracy(sess, labels, preds, feed_dict={images: test_images, labels: test_labels})
             print("Epoch " + str(epoch + 1))
             print("   Training loss: {:.2f}".format(avg_train_loss))
             print("   Training accuracy: {:.2f} %".format(100 * avg_train_accuracy))
             print("   Test accuracy: {:.2f} %".format(100 * test_accuracy))
     
-    # Model eveluation
-    
-    tf.local_variables_initializer().run()
-    _, train_acc = sess.run([accuracy, accuracy_op], feed_dict={images: train_images, labels: train_labels})
-    tf.local_variables_initializer().run()
-    _, acc = sess.run([accuracy, accuracy_op], feed_dict={images: test_images, labels: test_labels})
-    tf.local_variables_initializer().run()
-    _, rec = sess.run([recall, recall_op], feed_dict={images: test_images, labels: test_labels})
-    tf.local_variables_initializer().run()
-    _, prec = sess.run([precision, precision_op], feed_dict={images: test_images, labels: test_labels})
-
-    print("\nFinal train accuracy: {:.2f} %".format(100 * train_acc))
-    print("Final test accuracy: {:.2f} %".format(100 * acc))
-    print("Final recall: {:.2f} %".format(100 * rec))
-    print("Final precision: {:.2f} %".format(100 * prec))
-    
-    _, fp = sess.run([false_positives, false_positives_op], feed_dict={images: test_images, labels: test_labels})
-    _, fn = sess.run([false_negatives, false_negatives_op], feed_dict={images: test_images, labels: test_labels})
-    _, tp = sess.run([true_positives, true_positives_op], feed_dict={images: test_images, labels: test_labels})
-    _, tn = sess.run([true_negatives, true_negatives_op], feed_dict={images: test_images, labels: test_labels})
-    
-    print("False_positives: " + str(int(fp)))
-    print("False_negatives: " + str(int(fn)))
-    print("True_positives: " + str(int(tp)))
-    print("True_negatives: " + str(int(tn)))
+    evaluate_model(sess, labels, preds, feed_dict={images: test_images, labels: test_labels})
     
