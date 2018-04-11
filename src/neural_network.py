@@ -13,7 +13,7 @@ display_step = 1
 tf.reset_default_graph()
 
 # Getting data
-train_images, train_labels, test_images, test_labels = get_binary_labeled_data(0.8, one_hot=True)
+train_images, train_labels, test_images, test_labels = get_binary_labeled_data(0.9, one_hot=True)
 
 train_size = train_images.shape[0]
 batch_size = train_size if train_size < batch_size else batch_size 
