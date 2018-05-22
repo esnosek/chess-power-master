@@ -30,7 +30,7 @@ if __name__ == '__main__':
                 i=i+1
                 rectangle = get_rectangle(height, width, channels, box, image)
                 rectangle_file_name = "fields/" + basename(filename) + "_" + str(i) + ".png"
-                rectangle = cv2.resize(rectangle, (200,200))
+                rectangle = cv2.resize(rectangle, (50,50))
                 cv2.imwrite(rectangle_file_name, rectangle)
                 with open("labels.csv", 'a') as file:
                     file.write(rectangle_file_name + "\t")

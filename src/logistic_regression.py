@@ -3,12 +3,12 @@ from data_parser import get_binary_labeled_data
 from model_evaluation import get_accuracy, evaluate_model
 
 class_number = 2
-width = 200
-height = 200
+width = 50
+height = 50
 channels = 3
-batch_size = 500
-epochs = 50
-display_step = 10
+batch_size = 100
+epochs = 1500
+display_step = 1
 
 tf.reset_default_graph()
 
@@ -37,7 +37,7 @@ loss = tf.reduce_mean(entropy)
 #loss = tf.reduce_mean(loss + 0.001 * regularizer)
 
 # Gradient Descent Optimizer
-optimizer = tf.train.GradientDescentOptimizer(0.0001).minimize(loss)
+optimizer = tf.train.GradientDescentOptimizer(0.00001).minimize(loss)
 
 # Evaluate the model
 preds = tf.nn.softmax(logits)

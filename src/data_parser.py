@@ -4,8 +4,8 @@ import numpy as np
 
 data_dir = "data/"
 data_file = data_dir + "labels.csv"
-width = 200
-height = 200
+width = 50
+height = 50
 channels = 3
 class_number = 2
 
