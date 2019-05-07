@@ -3,14 +3,10 @@ import cv2
 import numpy as np
 
 data_dir = "../data/"
-data_file = data_dir + "train_data/labels.csv"
-width = 50
-height = 50
-channels = 3
-class_number = 2
+data_file = data_dir + "train_data/empty_or_occupied_50x50/labels.csv"
 
 
-def get_binary_labeled_data(test, one_hot = False):
+def get_binary_labeled_data(test, width, height, channels, class_number, one_hot = False):
     
     data = pd.read_csv(data_file, sep='\t')
     data = data.sample(frac = 1).reset_index(drop=True)

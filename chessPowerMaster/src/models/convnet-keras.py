@@ -20,7 +20,8 @@ width = 50
 height = 50
 channels = 3
 
-training_images, training_labels, test_images, test_labels = get_binary_labeled_data(0.8, one_hot=False)
+training_images, training_labels, test_images, test_labels = get_binary_labeled_data(
+        test=0.8, width=50, height=50, channels=3, class_number=2, one_hot=False)
 
 
 train_size = training_images.shape[0]
@@ -32,6 +33,8 @@ test_images=test_images / 255.0
 callbacks = TestCallback((test_images, test_labels))   
 
 model = tf.keras.models.Sequential([
+  tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=(width, height, channels)),
+  tf.keras.layers.MaxPooling2D(2, 2),
   tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(width, height, channels)),
   tf.keras.layers.MaxPooling2D(2, 2),
   tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(width, height, channels)),
